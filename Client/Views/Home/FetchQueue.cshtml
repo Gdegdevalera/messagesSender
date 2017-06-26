@@ -1,0 +1,82 @@
+﻿@using Client.Extensions
+@model Client.Models.QueueModel
+
+<table class="queue table table-striped">
+    <tr>
+        <th>Тип сообщения</th>
+        <th>Тело сообщения</th>
+        <th>Дата создания (UTC)</th>
+        <th>Состояние</th>
+        <th>Дата отправки (UTC)</th>
+    </tr>
+    @foreach (var message in Model.Messages)
+    {
+        <tr>
+            <td>@message.Channel</td>
+            <td>@message.Body.SafeSubstring(0, 20)</td>
+            <td>@message.CreatedAt</td>
+            <td>@message.State</td>
+            <td>@message.ProcessedAt</td>
+        </tr>
+    }
+</table>
+
+<div>
+Страница: @Model.Page
+Всего: @Model.TotalPages 
+</div>
+
+<button id="fetchPrevPage" class="btn btn-primary btn-xs">Предыдущая</button>
+<button id="fetchNextPage" class="btn btn-primary btn-xs">Следующая</button>
+
+<script language="javascript">
+    function getUrl(page) {
+        return "\FetchQueue?capacity=@Model.Capacity&page=" + page;
+    }
+
+    $('#pageNumber').val(@Model.Page);
+</script>
+
+@if (Model.Page <= 1)
+{                  
+    <script language="javascript">
+        $(function () {
+            $('#fetchPrevPage').attr('disabled', 'disabled');
+        });
+    </script>
+}
+else
+{
+    <script language="javascript">
+        $(function () {
+            $('#fetchPrevPage').click(function () {
+                $.ajax({ url: getUrl(@(Model.Page-1)) })
+                    .done(function (response) {
+                        $('#queue').html(response);
+                });
+            });
+        });
+    </script>
+}
+
+@if (Model.Page >= Model.TotalPages)
+{
+    <script language="javascript">
+            $(function () {
+                $('#fetchNextPage').attr('disabled', 'disabled');
+            });
+    </script>
+}
+else
+{
+    <script language="javascript">
+        $(function () {
+            $('#fetchNextPage').click(function () {
+                $.ajax({ url: getUrl(@(Model.Page+1)) })
+                    .done(function (response) {
+                        $('#queue').html(response);
+                });
+            });
+        });
+    </script>
+}

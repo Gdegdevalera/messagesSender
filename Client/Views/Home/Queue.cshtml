@@ -1,0 +1,41 @@
+﻿<div style="margin-bottom: 20px;">
+    @using (Ajax.BeginForm("QueueStep", "Home", null, new AjaxOptions { LoadingElementId = "sending", OnComplete = "queueStepOnComplete" }))
+    {
+        <div class="inline">
+            <button class="btn btn-primary" type="submit">Отправить одно сообщение получателю</button>
+        </div>
+        <div class="inline" id="sending" style="display: none;">Сообщение отправляется...</div>    
+    }
+</div>
+
+@using(Ajax.BeginForm("FetchQueue", "Home", null, new AjaxOptions {
+    HttpMethod = "GET",
+    UpdateTargetId = "queue",
+    OnFailure = "onFetchQueueFailure",
+    LoadingElementId = "loading" },
+    new { @id = "fetchQueueForm", @class="form-inline" }))
+{
+    <input type="hidden" id="pageNumber" name="page" value="1" />
+    <div class="form-group">
+        <label for="capacity" class="control-label">На странице:</label>
+        <input type="number" class="form-control" max="500" value="10" name="capacity" />
+        <input type="submit" class="btn btn-primary btn-xs" value="Показать" />
+    </div>
+}
+
+<div id="loading" style="display: none;">Загружается список сообщений...</div>
+<div id="queue" />
+
+<script language="javascript">
+    $(function () {
+        $('#fetchQueueForm').submit();
+    });
+
+    function queueStepOnComplete() {
+        $('#fetchQueueForm').submit();
+    }
+
+    function onFetchQueueFailure(response) {
+        $('#queue').html('Ошибка');
+    }
+</script>
